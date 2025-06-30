@@ -60,7 +60,7 @@ pub async fn send_solana(
         Some(from) => from,
     };
 
-    // Validate to field
+   
     let to_str = match &payload.to {
         None => {
             return Err((
@@ -83,7 +83,7 @@ pub async fn send_solana(
         Some(to) => to,
     };
 
-    // Validate lamports field
+    
     let lamports = match payload.lamports {
         None => {
             return Err((
@@ -154,14 +154,14 @@ pub async fn send_solana(
         }
     };
 
-    // Create SOL transfer instruction
+   
     let instruction = system_instruction::transfer(
         &from,
         &to,
         lamports,
     );
 
-    // Convert accounts to required format
+    
     let accounts: Vec<AccountMeta> = instruction.accounts.iter().map(|meta| AccountMeta {
         pubkey: bs58::encode(meta.pubkey.to_bytes()).into_string(),
         is_signer: meta.is_signer,
@@ -184,7 +184,7 @@ pub async fn send_token(
     extract::Json(payload): extract::Json<SendTokenRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     
-    // Validate destination field
+    
     let destination_str = match &payload.destination {
         None => {
             return Err((
@@ -207,7 +207,7 @@ pub async fn send_token(
         Some(dest) => dest,
     };
 
-    // Validate mint field
+
     let mint_str = match &payload.mint {
         None => {
             return Err((
@@ -230,7 +230,7 @@ pub async fn send_token(
         Some(mint) => mint,
     };
 
-    // Validate owner field
+
     let owner_str = match &payload.owner {
         None => {
             return Err((
@@ -253,7 +253,7 @@ pub async fn send_token(
         Some(owner) => owner,
     };
 
-    // Validate amount field
+
     let amount = match payload.amount {
         None => {
             return Err((
@@ -348,13 +348,13 @@ pub async fn send_token(
         }
     };
 
-    // Create token transfer instruction
+   
     let instruction = instruction::transfer(
         &spl_token::ID,
-        &source,  // source token account
-        &destination,  // destination token account
-        &owner,  // owner of source account
-        &[],  // signer seeds
+        &source,  
+        &destination,  
+        &owner,  
+        &[],  
         amount,
     ).map_err(|_| (
         StatusCode::BAD_REQUEST,
@@ -364,7 +364,7 @@ pub async fn send_token(
         }))
     ))?;
 
-    // Convert accounts to required format
+   
     let accounts: Vec<AccountMeta> = instruction.accounts.iter().map(|meta| AccountMeta {
         pubkey: bs58::encode(meta.pubkey.to_bytes()).into_string(),
         is_signer: meta.is_signer,

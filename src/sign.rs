@@ -97,48 +97,35 @@ pub async fn process_message_signing(
     Json(request_data): Json<MessageSignRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     
-    // Extract and validate the text to be signed
+   
     let text_to_sign = validate_input_text(&request_data.text)?;
     
-    // Extract and validate the private key
+    
     let raw_private_key = validate_private_key(&request_data.private_key)?;
     
-    // Decode the base58 encoded private key
+    
     let decoded_key_bytes = decode_base58_key(raw_private_key)?;
     
-    // Ensure the key has the correct length
+
     validate_key_length(&decoded_key_bytes)?;
     
-    // Generate the keypair from the raw bytes
+   
     let wallet_keypair = create_keypair_from_bytes(&decoded_key_bytes)?;
     
-    // Perform the actual message signing
+
     let message_signature = wallet_keypair.sign_message(text_to_sign.as_bytes());
     
-    // Extract the public key from the keypair
+   
     let wallet_address = wallet_keypair.pubkey();
     let encoded_wallet_address = bs58::encode(wallet_address.to_bytes()).into_string();
     
-    // Build and return the success response
+  
     Ok(build_success_response(
         message_signature.as_ref(),
         &encoded_wallet_address,
         text_to_sign
     ))
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -250,34 +237,33 @@ pub async fn authenticate_message_signature(
     extract::Json(request_payload): extract::Json<SignatureVerificationRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     
-    // Extract and validate the text content
+    
     let text_content = extract_text_content(&request_payload.text)
         .map_err(|e| e.to_response())?;
     
-    // Extract and validate the signature data
+    
     let signature_data = extract_signature_data(&request_payload.signed_data)
         .map_err(|e| e.to_response())?;
     
-    // Extract and validate the wallet address
+   
     let wallet_addr_str = extract_wallet_address(&request_payload.wallet_address)
         .map_err(|e| e.to_response())?;
     
-    // Parse the wallet address from base58
+
     let parsed_wallet_addr = parse_wallet_address(wallet_addr_str)
         .map_err(|e| e.to_response())?;
     
-    // Parse the signature from base64
+
     let parsed_signature = parse_signature_bytes(signature_data)
         .map_err(|e| e.to_response())?;
-    
-    // Perform the signature verification
+
     let verification_outcome = perform_signature_verification(
         &parsed_signature,
         &parsed_wallet_addr,
         text_content,
     );
     
-    // Build and return the verification response
+
     Ok(create_verification_response(
         verification_outcome,
         text_content,

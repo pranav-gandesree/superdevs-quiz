@@ -29,7 +29,7 @@ pub async fn mint_token(
     extract::Json(payload): extract::Json<MintTokenRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     
-    // Validate mint field
+   
     let mint_str = match &payload.mint {
         None => {
             return Err((
@@ -52,7 +52,7 @@ pub async fn mint_token(
         Some(mint) => mint,
     };
 
-    // Validate destination field
+    
     let destination_str = match &payload.destination {
         None => {
             return Err((
@@ -75,7 +75,7 @@ pub async fn mint_token(
         Some(dest) => dest,
     };
 
-    // Validate authority field
+
     let authority_str = match &payload.authority {
         None => {
             return Err((
@@ -98,7 +98,7 @@ pub async fn mint_token(
         Some(auth) => auth,
     };
 
-    // Validate amount field
+    
     let amount = match payload.amount {
         None => {
             return Err((
@@ -193,7 +193,7 @@ pub async fn mint_token(
         }
     };
 
-    // Create mint-to instruction
+    
     let instruction = instruction::mint_to(
         &spl_token::ID,
         &mint,
@@ -209,7 +209,7 @@ pub async fn mint_token(
         }))
     ))?;
 
-    // Convert accounts to required format
+    
     let accounts: Vec<AccountMeta> = instruction.accounts.iter().map(|meta| AccountMeta {
         pubkey: bs58::encode(meta.pubkey.to_bytes()).into_string(),
         is_signer: meta.is_signer,

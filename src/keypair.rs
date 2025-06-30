@@ -34,8 +34,8 @@ pub async fn generate_keypair() -> impl IntoResponse {
     let response = MyResponse {
         success: true,
         data: Data {
-            pubkey: pubkey.to_string(), // This gives base58 encoded pubkey
-            secret: bs58::encode(&secret).into_string(), // Base58 encode the secret key
+            pubkey: pubkey.to_string(), 
+            secret: bs58::encode(&secret).into_string(), 
         }
     };
     

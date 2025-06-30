@@ -31,6 +31,43 @@ pub async fn create_token(
     extract::Json(payload): extract::Json<CreateTokenRequest>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     
+    
+    //     None => {
+    //         return Err((
+    //             StatusCode::BAD_REQUEST,
+    //             Json(json!({
+    //                 "success": false,
+    //                 "error": "Missing required field: mint_authority"
+    //             }))
+    //         ));
+    //     }
+    //     Some(authority) => {
+    //         match bs58::decode(authority).into_vec() {
+    //             // Ok(bytes) => match Pubkey::try_from(bytes.as_slice()) {
+    //                 Some(authority) => match authority.parse::<Pubkey>() {
+    //                 Ok(pubkey) => pubkey,
+    //                 Err(_) => {
+    //                     return Err((
+    //                         StatusCode::BAD_REQUEST,
+    //                         Json(json!({
+    //                             "success": false,
+    //                             "error": "Invalid mint authority public key"
+    //                         }))
+    //                     ));
+    //                 }
+    //             },
+    //             Err(_) => {
+    //                 return Err((
+    //                     StatusCode::BAD_REQUEST,
+    //                     Json(json!({
+    //                         "success": false,
+    //                         "error": "Invalid mint authority public key format"
+    //                     }))
+    //                 ));
+    //             }
+    //         }
+    //     }
+    // };
     let mint_authority = match &payload.mint_authority {
         None => {
             return Err((
@@ -41,68 +78,44 @@ pub async fn create_token(
                 }))
             ));
         }
-        Some(authority) => {
-            match bs58::decode(authority).into_vec() {
-                Ok(bytes) => match Pubkey::try_from(bytes.as_slice()) {
-                    Ok(pubkey) => pubkey,
-                    Err(_) => {
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            Json(json!({
-                                "success": false,
-                                "error": "Invalid mint authority public key"
-                            }))
-                        ));
-                    }
-                },
-                Err(_) => {
-                    return Err((
-                        StatusCode::BAD_REQUEST,
-                        Json(json!({
-                            "success": false,
-                            "error": "Invalid mint authority public key format"
-                        }))
-                    ));
-                }
+        Some(authority_str) => match authority_str.parse::<Pubkey>() {
+            Ok(pubkey) => pubkey,
+            Err(_) => {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(json!({
+                        "success": false,
+                        "error": "Invalid mint authority public key"
+                    }))
+                ));
             }
-        }
+        },
     };
 
-    let mint = match &payload.mint {
-        None => {
+   
+let mint = match &payload.mint {
+    None => {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            Json(json!({
+                "success": false,
+                "error": "Missing required field: mint"
+            }))
+        ));
+    }
+    Some(mint_str) => match mint_str.parse::<Pubkey>() {
+        Ok(pubkey) => pubkey,
+        Err(_) => {
             return Err((
                 StatusCode::BAD_REQUEST,
                 Json(json!({
                     "success": false,
-                    "error": "Missing required field: mint"
+                    "error": "Invalid mint public key"
                 }))
             ));
         }
-        Some(mint) => {
-            match bs58::decode(mint).into_vec() {
-                Ok(bytes) => match Pubkey::try_from(bytes.as_slice()) {
-                    Ok(pubkey) => pubkey,
-                    Err(_) => {
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            Json(json!({
-                                "success": false,
-                                "error": "Invalid mint public key"
-                            }))
-                        ));
-                    } },
-                Err(_) => {
-                    return Err((
-                        StatusCode::BAD_REQUEST,
-                        Json(json!({
-                            "success": false,
-                            "error": "Invalid mint public key format"
-                        }))
-                    ));
-                }
-            }
-        }
-    };
+    },
+};
 
     let decimals = match payload.decimals {
         None => {
@@ -117,7 +130,7 @@ pub async fn create_token(
         Some(decimals) => decimals,
     };
 
-    // Create initialize mint instruction
+
     let instruction = instruction::initialize_mint(
         &spl_token::ID,
         &mint,
@@ -132,7 +145,7 @@ pub async fn create_token(
         }))
     ))?;
 
-    // Convert accounts to required format
+    
     let accounts: Vec<AccountMeta> = instruction.accounts.iter().map(|meta| AccountMeta {
         pubkey: bs58::encode(meta.pubkey.to_bytes()).into_string(),
         is_signer: meta.is_signer,
