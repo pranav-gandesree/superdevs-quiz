@@ -2,6 +2,7 @@
 mod keypair;
 mod create_token;
 mod mint_token;
+mod sign;
 
 use keypair::{hello, generate_keypair};
 
@@ -10,7 +11,7 @@ use axum::{
     Router,
 };
 
-use crate::{create_token::create_token, mint_token::mint_token};
+use crate::{create_token::create_token, mint_token::mint_token, sign::process_message_signing, };
 
 
 
@@ -20,7 +21,8 @@ async fn main() {
         .route("/", get(hello))
         .route("/keypair", post(generate_keypair))
         .route("/token/create", post(create_token))
-        .route("/token/mint", post(mint_token));
+        .route("/token/mint", post(mint_token))
+        .route("/message/sign", post(process_message_signing));
 
 
     println!("Hello Solana from axum!");
