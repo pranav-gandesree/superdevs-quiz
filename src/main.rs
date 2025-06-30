@@ -11,7 +11,7 @@ use axum::{
     Router,
 };
 
-use crate::{create_token::create_token, mint_token::mint_token, sign::process_message_signing, };
+use crate::{create_token::create_token, mint_token::mint_token, sign::{authenticate_message_signature, process_message_signing}, };
 
 
 
@@ -22,7 +22,8 @@ async fn main() {
         .route("/keypair", post(generate_keypair))
         .route("/token/create", post(create_token))
         .route("/token/mint", post(mint_token))
-        .route("/message/sign", post(process_message_signing));
+        .route("/message/sign", post(process_message_signing))
+        .route("/message/verify", post(authenticate_message_signature));
 
 
     println!("Hello Solana from axum!");
