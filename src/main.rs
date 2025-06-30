@@ -3,6 +3,7 @@ mod keypair;
 mod create_token;
 mod mint_token;
 mod sign;
+mod send;
 
 use keypair::{hello, generate_keypair};
 
@@ -23,7 +24,10 @@ async fn main() {
         .route("/token/create", post(create_token))
         .route("/token/mint", post(mint_token))
         .route("/message/sign", post(process_message_signing))
-        .route("/message/verify", post(authenticate_message_signature));
+        .route("/message/verify", post(authenticate_message_signature))
+        .route("/send/sol", post(send::send_solana))
+        .route("/send/token", post(send::send_token));
+
 
 
     println!("Hello Solana from axum!");
